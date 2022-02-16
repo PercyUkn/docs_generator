@@ -5,12 +5,12 @@
 from tkinter import *
 from tkinter.ttk import Combobox
 
-from PIL import Image, ImageTk
-
 # initiallize a Tkinter root object
-from functions import *
+
 
 # index window
+from functions import display_logo, generate_window
+
 root = Tk()
 root.title("Generador de documentos")
 root.geometry('+%d+%d' % (350, 10))  # place GUI at x=350, y=10
@@ -68,7 +68,7 @@ generation_type_radio_button_bloque.grid(row=7, column=0, sticky=N)
 generation_type_radio_button_individual.select()
 
 # Generate button
-generate_button = Button(root, text="Generar", command=lambda: gemerate_window(root, selected_document_type.get(),
+generate_button = Button(root, text="Generar", command=lambda: generate_window(root, selected_document_type.get(),
                                                                                selected_generation_type.get()),
                          font=("Lato", 14),
                          height=1, width=15, bg="#00A6FF", fg="white")
