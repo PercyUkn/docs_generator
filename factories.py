@@ -12,6 +12,7 @@ from individual_generator import initialize_child_individual
 import pandas as pd
 import comtypes.client
 
+
 def combobox_factory(label_text, options_list, container, row, column=0, flexible=False, column_widget=0):
     if not flexible:
         column_widget = column + 2
@@ -46,15 +47,17 @@ def text_input_factory(label_text, container, row, column=0, flexible=False, col
 
 
 def update_path(path_selected, parent):
-    folder_selected = filedialog.askdirectory(parent=parent,title="Seleccionar ruta de destino")
+    folder_selected = filedialog.askdirectory(parent=parent, title="Seleccionar ruta de destino")
     path_selected.set(folder_selected)
 
 
 def update_file_path(selected_file_path, parent):
-    file_selected = filedialog.askopenfilename(filetypes=(("Archivos csv", "*.csv"), ("All files", "*.*")),parent=parent, title="Seleccionar archivo de origen")
+    file_selected = filedialog.askopenfilename(filetypes=(("Archivos csv", "*.csv"), ("All files", "*.*")),
+                                               parent=parent, title="Seleccionar archivo de origen")
     selected_file_path.set(file_selected)
 
-def convert_word_to_pdf(input_file_path,output_file_path):
+
+def convert_word_to_pdf(input_file_path, output_file_path):
     wdFormatPDF = 17
     word = comtypes.client.CreateObject('Word.Application')
     word.Visible = False
@@ -73,11 +76,11 @@ def set_origin_path_factory(container, row, column, default_path, label_text="Se
     file_selected = StringVar()
     file_selected.set(default_path)
     input_path = Entry(container, textvariable=file_selected, width=40, state="disabled")
-    input_path.grid(row=row + 1, column=column+1, columnspan=3, rowspan=2, sticky=NW)
+    input_path.grid(row=row + 1, column=column + 1, columnspan=3, rowspan=2, sticky=NW)
 
     # Update dest path file button
     update_path_button = Button(container, text="Seleccionar archivo",
-                                command=lambda: update_file_path(file_selected,parent=container),
+                                command=lambda: update_file_path(file_selected, parent=container),
                                 font=("Lato", 14),
                                 height=1, width=15, bg="#00A6FF", fg="white")
     update_path_button.grid(row=row + 1, column=column, sticky=N)
@@ -93,8 +96,8 @@ def set_dest_path_factory(container, row, column, default_path,
 
     if not (os.path.exists(default_path)):
         os.makedirs(default_path)
-        os.makedirs(default_path+"/word")
-        os.makedirs(default_path+"/pdf")
+        os.makedirs(default_path + "/word")
+        os.makedirs(default_path + "/pdf")
 
     path_selected = StringVar()
     path_selected.set(default_path)
@@ -108,6 +111,47 @@ def set_dest_path_factory(container, row, column, default_path,
                                 height=1, width=15, bg="#00A6FF", fg="white")
     update_path_button.grid(row=row + 1, column=column, sticky=N)
     return path_selected
+
+
+def instruction_factory(container, row, column, document_type,generation_type,height=25,width=65, rowspan=6, columnspan=4):
+    instruction_label = Label(container, text="Instrucciones:", font=("Lato", 18),
+                              bg="#D1F2F2",
+                              fg="black", padx=20)
+
+    # Instrucciones para constancia de vacante (bloque)
+    instrucciones_individual = """
+           \nSi no se tiene un dato ingrese dos o más 'X'.
+           """
+
+
+    # Instrucciones para constancia de vacante (bloque)
+    instrucciones_vacante_bloque = """
+        Los campos que debe contemplar el archivo CSV son:\n
+        \t- Nivel: inicial, primaria o secundaria\n
+        \t- Código modular: 0872010, 0872184, 1240993, 1542471, 1542489\n
+        \t- Grado: inicial de tres años, ..., quinto de secundaria\n
+        \t- Pronombre: el, la\n
+        \t- Apellidos\n
+        \t- Nombres\n
+        \t- Institución anterior\n
+        \t- DNI\n
+         \nSi no se tiene un dato ingrese dos o más 'X'.
+        """
+
+    if generation_type.upper() == "INDIVIDUAL":
+        instrucciones=instrucciones_individual
+    elif generation_type.upper() == "BLOQUE":
+        if document_type.upper() == "CONSTANCIA DE VACANTE":
+            instrucciones = instrucciones_vacante_bloque
+
+
+    instruction_label.grid(row=row, column=column, columnspan=3, sticky=NW)
+    instruction_textarea = Text(container,
+                                font=("Lato", 14),
+                                height=height, width=width, bg="white", fg="black", bd=5, relief="groove")
+    instruction_textarea.insert(END, instrucciones)
+    instruction_textarea["state"] = "disabled"
+    instruction_textarea.grid(row=row + 1, rowspan=rowspan, column=column, sticky=NW, columnspan=columnspan)
 
 
 def constancia_vacante_widgets_factory_individual(child, document_type, generation_type):
@@ -153,6 +197,8 @@ def constancia_vacante_widgets_factory_individual(child, document_type, generati
     dest_path = set_dest_path_factory(column=4, row=5, default_path=os.path.expanduser(
         f'~/Documents/GeneratedDocuments/{document_type}'), container=child)
 
+    instruction_factory(child, row=7, column=4, document_type=document_type, generation_type=generation_type,height=5, width=35, rowspan=5, columnspan=4)
+
     button_state = StringVar()
     button_state.set("Generar")
 
@@ -174,27 +220,27 @@ def constancia_vacante_widgets_factory_individual(child, document_type, generati
                              ),
                              font=("Lato", 14),
                              height=1, width=15, bg="#00A6FF", fg="white")
-    generate_button.grid(row=11, column=4, sticky=N)
+    generate_button.grid(row=11, column=3, sticky=N)
 
     # Quitar, el child.mainloop() cuándo terminemos de probar
     # child.mainloop()
 
 
 def constancia_vacante_widgets_factory_bloque(child, document_type, generation_type):
-    # Quitar, el TK() cuándo terminemos de probar
-    # child = Tk()
     initialize_child_individual(child, document_type)
-
+    instruction_factory(child, row=3, column=4, document_type=document_type,generation_type=generation_type)
     generation_type_label = Label(child, text=f"Generando documentos bajo modalidad {generation_type}",
                                   font=("Lato", 14),
                                   bg="#D1F2F2",
                                   fg="black", padx=20)
     generation_type_label.grid(row=3, column=0, columnspan=3, sticky=NW)
 
-    selected_file_path = set_origin_path_factory(container=child, default_path=None, row=4, column=0,label_text="1. Seleccione el archivo CSV:")
+    selected_file_path = set_origin_path_factory(container=child, default_path=None, row=4, column=0,
+                                                 label_text="1. Seleccione el archivo CSV:")
 
     dest_path = set_dest_path_factory(column=0, row=7, default_path=os.path.expanduser(
-        f'~/Documents/GeneratedDocuments/{document_type}'), container=child, label_text="2. Seleccione la ruta de destino para guardar:")
+        f'~/Documents/GeneratedDocuments/{document_type}'), container=child,
+                                      label_text="2. Seleccione la ruta de destino para guardar:")
 
     button_state = StringVar()
     button_state.set("Generar")
@@ -204,9 +250,6 @@ def constancia_vacante_widgets_factory_bloque(child, document_type, generation_t
                              font=("Lato", 14),
                              height=1, width=15, bg="#00A6FF", fg="white")
     generate_button.grid(row=11, column=4, sticky=N)
-
-    # Quitar, el child.mainloop() cuándo terminemos de probar
-    # child.mainloop()
 
 
 def make_word_indvidual(datos_plantilla, dest_path, button_state, alert=True):
@@ -224,13 +267,13 @@ def make_word_indvidual(datos_plantilla, dest_path, button_state, alert=True):
     tpl.render(datos_plantilla)
     # Debe pasar también la ruta de descarga, por defecto debe ser la misma que la de dónde está el programa
     # folder_selected = filedialog.askdirectory()
-    output_path_word = os.path.join(dest_path,"word",
-                              f"Constancia de vacante - {datos_plantilla['APELLIDOS']}, {datos_plantilla['NOMBRES']}.docx")
-    output_path_pdf = os.path.join(dest_path,"pdf",
-                                    f"Constancia de vacante - {datos_plantilla['APELLIDOS']}, {datos_plantilla['NOMBRES']}.pdf")
+    output_path_word = os.path.join(dest_path, "word",
+                                    f"Constancia de vacante - {datos_plantilla['APELLIDOS']}, {datos_plantilla['NOMBRES']}.docx")
+    output_path_pdf = os.path.join(dest_path, "pdf",
+                                   f"Constancia de vacante - {datos_plantilla['APELLIDOS']}, {datos_plantilla['NOMBRES']}.pdf")
     tpl.save(output_path_word)
     # Esperar a que se genere el word primero, luego generar el PDF
-    #time.sleep(random.randint(5, 10))
+    # time.sleep(random.randint(5, 10))
     convert_word_to_pdf(output_path_word, output_path_pdf)
     if alert:
         messagebox.showinfo("Documento generado con éxito", f"Se guardó el documento en: {output_path_word}")
