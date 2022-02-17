@@ -14,7 +14,18 @@ from functions import display_logo, generate_window
 root = Tk()
 root.title("Generador de documentos")
 root.geometry('+%d+%d' % (350, 10))  # place GUI at x=350, y=10
-root.resizable(False, False)
+root.iconbitmap('resources/insignia.ico')
+#root.resizable(False, False)
+root.minsize(1345,755)
+root.maxsize(1430,900)
+n_rows =12
+n_columns =7
+for i in range(n_rows):
+    root.grid_rowconfigure(i,  weight =1)
+for i in range(n_columns):
+    root.grid_columnconfigure(i,  weight =1)
+
+
 
 # header area - logo & browse button
 header = Frame(root, width=1440, height=180, bg="#00A6FF")

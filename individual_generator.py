@@ -12,7 +12,17 @@ from functions import *
 def initialize_child_individual(child, document_type):
     child.title("Generador individual: ")
     child.geometry('+%d+%d' % (350, 10))  # place GUI at x=350, y=10
-    child.resizable(False, False)
+    child.iconbitmap('resources/insignia.ico')
+    child.minsize(1345, 755)
+    child.maxsize(1430, 860)
+    #child.resizable(False, False)
+
+    n_rows = 12
+    n_columns = 7
+    for i in range(n_rows):
+        child.grid_rowconfigure(i, weight=1)
+    for i in range(n_columns):
+        child.grid_columnconfigure(i, weight=1)
 
     # header area - logo & browse button
     header = Frame(child, width=1440, height=180, bg="#00A6FF")
